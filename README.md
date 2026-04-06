@@ -1,3 +1,6 @@
+#TF Reflection
+
+The component I found most difficult and students would also find confusing is the scoring component. This is not as direct as previous tinkers, the agent noted implementing smart socring. It means having code that identifies what data sets best fit responses to a question while actively avoiding nonsense queries. This also ties back to the inverted index, and making code that was "smart".
 # DocuBot
 
 DocuBot is a small documentation assistant that helps answer developer questions about a codebase.  
