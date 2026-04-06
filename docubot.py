@@ -3,12 +3,17 @@ Core DocuBot class responsible for:
 - Loading documents from the docs/ folder
 - Building a simple retrieval index (Phase 1)
 - Retrieving relevant snippets (Phase 1)
+<<<<<<< HEAD
 - Supporting retrieval-only answers
+=======
+- Supporting retrieval only answers
+>>>>>>> 6428137a609405c20ec0c08b35d5e97ef14cbbfc
 - Supporting RAG answers when paired with Gemini (Phase 2)
 """
 
 import os
 import glob
+<<<<<<< HEAD
 import re
 
 
@@ -44,6 +49,23 @@ class DocuBot:
         # Chunk corpus once at startup; every retrieve() call uses these.
         self.chunks = self._build_chunks(self.documents)
         self.index = self.build_index(self.chunks)
+=======
+
+class DocuBot:
+    def __init__(self, docs_folder="docs", llm_client=None):
+        """
+        docs_folder: directory containing project documentation files
+        llm_client: optional Gemini client for LLM based answers
+        """
+        self.docs_folder = docs_folder
+        self.llm_client = llm_client
+
+        # Load documents into memory
+        self.documents = self.load_documents()  # List of (filename, text)
+
+        # Build a retrieval index (implemented in Phase 1)
+        self.index = self.build_index(self.documents)
+>>>>>>> 6428137a609405c20ec0c08b35d5e97ef14cbbfc
 
     # -----------------------------------------------------------
     # Document Loading
@@ -65,6 +87,7 @@ class DocuBot:
         return docs
 
     # -----------------------------------------------------------
+<<<<<<< HEAD
     # Chunking
     # -----------------------------------------------------------
 
@@ -110,10 +133,37 @@ class DocuBot:
 
     # -----------------------------------------------------------
     # Scoring and Retrieval
+=======
+    # Index Construction (Phase 1)
+    # -----------------------------------------------------------
+
+    def build_index(self, documents):
+        """
+        TODO (Phase 1):
+        Build a tiny inverted index mapping lowercase words to the documents
+        they appear in.
+
+        Example structure:
+        {
+            "token": ["AUTH.md", "API_REFERENCE.md"],
+            "database": ["DATABASE.md"]
+        }
+
+        Keep this simple: split on whitespace, lowercase tokens,
+        ignore punctuation if needed.
+        """
+        index = {}
+        # TODO: implement simple indexing
+        return index
+
+    # -----------------------------------------------------------
+    # Scoring and Retrieval (Phase 1)
+>>>>>>> 6428137a609405c20ec0c08b35d5e97ef14cbbfc
     # -----------------------------------------------------------
 
     def score_document(self, query, text):
         """
+<<<<<<< HEAD
         Returns a relevance score: the count of unique query words that
         appear at least once in text (case-insensitive).
 
@@ -159,6 +209,29 @@ class DocuBot:
         scored.sort(key=lambda item: (-item[0], item[1]))
 
         return [(fname, chunk) for _, fname, chunk in scored[:top_k]]
+=======
+        TODO (Phase 1):
+        Return a simple relevance score for how well the text matches the query.
+
+        Suggested baseline:
+        - Convert query into lowercase words
+        - Count how many appear in the text
+        - Return the count as the score
+        """
+        # TODO: implement scoring
+        return 0
+
+    def retrieve(self, query, top_k=3):
+        """
+        TODO (Phase 1):
+        Use the index and scoring function to select top_k relevant document snippets.
+
+        Return a list of (filename, text) sorted by score descending.
+        """
+        results = []
+        # TODO: implement retrieval logic
+        return results[:top_k]
+>>>>>>> 6428137a609405c20ec0c08b35d5e97ef14cbbfc
 
     # -----------------------------------------------------------
     # Answering Modes
@@ -166,6 +239,7 @@ class DocuBot:
 
     def answer_retrieval_only(self, query, top_k=3):
         """
+<<<<<<< HEAD
         Phase 1 retrieval-only mode.
         Returns raw chunk text and source filenames; no LLM involved.
         An explicit refusal message is returned when retrieve() finds
@@ -175,18 +249,38 @@ class DocuBot:
         if not snippets:
             return "I don't have enough information in these docs to answer that."
         formatted = [f"[{filename}]\n{chunk}\n" for filename, chunk in snippets]
+=======
+        Phase 1 retrieval only mode.
+        Returns raw snippets and filenames with no LLM involved.
+        """
+        snippets = self.retrieve(query, top_k=top_k)
+
+        if not snippets:
+            return "I do not know based on these docs."
+
+        formatted = []
+        for filename, text in snippets:
+            formatted.append(f"[{filename}]\n{text}\n")
+
+>>>>>>> 6428137a609405c20ec0c08b35d5e97ef14cbbfc
         return "\n---\n".join(formatted)
 
     def answer_rag(self, query, top_k=3):
         """
         Phase 2 RAG mode.
+<<<<<<< HEAD
         Uses chunk-level retrieval to select evidence, then passes it
         to the LLM to synthesise an answer.
+=======
+        Uses student retrieval to select snippets, then asks Gemini
+        to generate an answer using only those snippets.
+>>>>>>> 6428137a609405c20ec0c08b35d5e97ef14cbbfc
         """
         if self.llm_client is None:
             raise RuntimeError(
                 "RAG mode requires an LLM client. Provide a GeminiClient instance."
             )
+<<<<<<< HEAD
         snippets = self.retrieve(query, top_k=top_k)
         if not snippets:
             return "I don't have enough information in these docs to answer that."
@@ -194,11 +288,29 @@ class DocuBot:
 
     # -----------------------------------------------------------
     # Bonus Helper
+=======
+
+        snippets = self.retrieve(query, top_k=top_k)
+
+        if not snippets:
+            return "I do not know based on these docs."
+
+        return self.llm_client.answer_from_snippets(query, snippets)
+
+    # -----------------------------------------------------------
+    # Bonus Helper: concatenated docs for naive generation mode
+>>>>>>> 6428137a609405c20ec0c08b35d5e97ef14cbbfc
     # -----------------------------------------------------------
 
     def full_corpus_text(self):
         """
         Returns all documents concatenated into a single string.
+<<<<<<< HEAD
         Used in Phase 0 for naive 'generation only' baselines.
         """
         return "\n\n".join(text for _, text in self.documents)
+=======
+        This is used in Phase 0 for naive 'generation only' baselines.
+        """
+        return "\n\n".join(text for _, text in self.documents)
+>>>>>>> 6428137a609405c20ec0c08b35d5e97ef14cbbfc
